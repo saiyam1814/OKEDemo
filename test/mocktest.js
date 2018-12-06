@@ -1,5 +1,4 @@
 var assert = require('assert');
-const sinon = require('sinon');
 var expect  = require('chai').expect;
 var request = require('request');
 
