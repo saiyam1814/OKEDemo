@@ -112,9 +112,9 @@ jobs:
             command: |
               docker version
               TAG=0.1.$CIRCLE_BUILD_NUM
-              docker build -t prasannashasthri/mocha-chai/nodejs:crclci .             # (4)
-              docker login -u $DOCKER_USER -p $DOCKER_PASS
-              docker push prasannashasthri/mocha-chai/nodejs:crclci
+              docker build -t docker.io/prasannashasthri/nodejs:crclci .             # (4)
+              docker login docker.io -u $DOCKER_USER -p $DOCKER_PASS
+              docker push docker.io/prasannashasthri/nodejs:crclci
 #      - run:
 #         name : Deploy to OKE
 #         command: |
