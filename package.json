@@ -1,20 +1,21 @@
 {
-  "name": "saiyamnodeapp",
+  "name": "OKEnodeapp",
   "version": "1.0.0",
   "description": "",
   "main": "server.js",
   "scripts": {
-    "testoriginal": "echo \"Message: Test successful\" && exit 0",
-    "test-mocha": "mocha test/mocktest.js",
-    "test" :"echo \"Message: Test successful\" && exit 0",
+    "test": "mocha",
     "start": "node server.js"
   },
   "author": "",
   "license": "ISC",
   "dependencies": {
-    "chai": "^4.2.0",
     "express": "^4.16.4",
-    "mocha": "^5.2.0",
+    "request": "^2.88.0",
     "supertest": "^3.3.0"
+  },
+  "devDependencies": {
+    "chai": "^4.2.0",
+    "mocha": "^5.2.0"
   }
 }
