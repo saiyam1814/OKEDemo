@@ -1,10 +1,19 @@
 var assert = require('assert');
 const sinon = require('sinon');
-describe('Array', function() {
-  describe('#indexOf()', function() {
-    it('should return -1 when the value is not present', function() {
-      assert.equal([1,2,3].indexOf(4), -1);
-      
+var expect  = require('chai').expect;
+var request = require('request');
+
+
+it('Should return 200 status', function() {
+    request('http://localhost:3000' , function(error, response, body) {
+        expect(response.statusCode).to.equal(200);;
+        done();
     });
-  });
+});
+
+it('Should return true for context root /test', function() {
+    request('http://localhost:3000/test' , function(error, response, body) {
+        expect(body).to.equal('{"status":true}');
+        done();
+    });
 });
