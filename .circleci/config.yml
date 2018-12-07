@@ -118,11 +118,11 @@ jobs:
 #              docker push docker.io/prasannashasthri/nodejs:crclci
 
 
-               docker build -t nodejscc .             # (4)
-               docker tag nodejscc $DOCKER_USER/nodejscc
-               docker login docker.io -u $DOCKER_USER -p $DOCKER_PASS
-               docker images
-               docker push $DOCKER_USER/nodejscc
+              docker build -t nodejscc .             # (4)
+              docker tag nodejscc $DOCKER_USER/nodejscc
+              docker login docker.io -u $DOCKER_USER -p $DOCKER_PASS
+              docker images
+              docker push $DOCKER_USER/nodejscc
 #      - run:
 #         name : Deploy to OKE
 #         command: |
