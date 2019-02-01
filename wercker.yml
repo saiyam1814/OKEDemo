@@ -1,18 +1,56 @@
-box: node:10.9.0-alpine
 build:
-  steps:
-    - script:
-        name: A step that executes `npm install` command
-        code: npm install
-
-# pipeline to store container on Docker Hub
-push-to-dockerhub:
+    box: node:10.9.0-alpine
     steps:
-      # Push to public docker repo
-      - internal/docker-push:
-          username: $DOCKER_USERNAME
-          password: $DOCKER_PASSWORD
-          tag:  $DOCKER_TAG
-          repository: $DOCKER_USERNAME/$WERCKER_APPLICATION_NAME
-          registry: https://index.docker.io/v2/
-          cmd: node /pipeline/source/main.js
+
+    # Check that our application's tests are passing. Since this is a python
+    # application, our entry script will also install the application's dependencies
+    # with Virtualenv
+    
+    - internal/docker-build:
+      dockerfile: Dockerfile
+      image-name: $REPO_REPOSITORY:$WERCKER_GIT_COMMIT
+      no-cache: true
+      registry-auth-config: |
+        {
+          "https://iad.ocir.io/v2/": {
+            "username": "${REPO_USERNAME}",
+            "password": "${REPO_PASSWORD}"
+          }
+        }
+    # push the image to Docker using the GIT branch as the tag
+    - internal/docker-push:
+      image-name: $REPO_REPOSITORY:$WERCKER_GIT_COMMIT
+      username: $REPO_USERNAME
+      password: $REPO_PASSWORD
+      repository: $REPO_REPOSITORY
+      registry: $REPO_REGISTRY
+      tag: $WERCKER_GIT_COMMIT
+
+deploy-to-kubernetes:
+    box: python:2.7
+    steps:
+
+    - bash-template
+    # The step above should leave us with a Kubernetes yml file.
+    # We'll create a directory to move them to.
+    - script:
+        name: Prepare Kubernetes files
+        code: |
+          mkdir $WERCKER_OUTPUT_DIR/kubernetes
+          mv kube-*.yml $WERCKER_OUTPUT_DIR/kubernetes
+    # `apply` is a good command to use here, as it'll create Kubernetes entities if they are missing.
+    - kubectl:
+        name: deploy to kubernetes
+        server: $OKE_MASTER
+        token: $OKE_TOKEN
+        insecure-skip-tls-verify: true
+        command: apply -f $WERCKER_OUTPUT_DIR/kubernetes/
+
+    # Watch the Kubernetes deployment. Once the pods are considered healthy the step will exit 0
+    # If they aren't healthy within 60 seconds, it will exit with a non 0 exit code, and cause the run to fail.
+    - kubectl:
+        name: check deployment status
+        server: $OKE_MASTER
+        token: $OKE_TOKEN
+        insecure-skip-tls-verify: true
+        command: rollout status deployment/client-app
